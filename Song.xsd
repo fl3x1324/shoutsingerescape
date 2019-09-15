@@ -1,0 +1,47 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://openlyrics.info/namespace/2009/song" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="song">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="properties">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="titles">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="title"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element type="xs:string" name="verseOrder"/>
+                            <xs:element name="authors">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="author"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="lyrics">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="verse" maxOccurs="unbounded" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="lines"/>
+                                    </xs:sequence>
+                                    <xs:attribute type="xs:string" name="name" use="optional"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:float" name="version"/>
+            <xs:attribute type="xs:string" name="createdIn"/>
+            <xs:attribute type="xs:string" name="modifiedIn"/>
+            <xs:attribute type="xs:dateTime" name="modifiedDate"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

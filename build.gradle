@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'org.epc3'
+version '1.0-SNAPSHOT'
+
+jar {
+    manifest {
+        attributes('Main-Class': 'org.epc3.shoutsingerescape.ShoutSingerEscape')
+    }
+}
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.healthmarketscience.jackcess:jackcess:3.0.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
+    implementation 'com.tutego:jrtf:0.7'
+    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-core
+	compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+	compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
+	compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.2'
+    testImplementation 'junit:junit:4.12'
+}

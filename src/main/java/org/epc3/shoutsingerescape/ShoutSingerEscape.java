@@ -3,8 +3,11 @@ package org.epc3.shoutsingerescape;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,6 +26,7 @@ public class ShoutSingerEscape {
     public static void main(String[] args) throws BadLocationException {
         try {
             var fileName = args[0];
+            var outputFolder = args[1];
             var inputFile = new File(fileName);
             var db = DatabaseBuilder.open(inputFile);
             var table = db.getTable("Songs");
@@ -31,22 +35,27 @@ public class ShoutSingerEscape {
             var songs = new ArrayList<Song>();
             var count = 0;
             var rowCount = table.getRowCount();
-            var startMilis = System.currentTimeMillis();
+            var startMilliseconds = System.currentTimeMillis();
+            System.out.print("Parsing...");
             for (var row : table) {
                 var tenth = rowCount / 10;
                 if (count % tenth == 0) {
-                    System.out.println(String.format("Parsing %d/%d...", count, rowCount));
+                    System.out.print(
+                        String.format("%d%%...", (int) (((float) count / rowCount) * 100)));
                 }
                 var title = row.get("Title");
                 if (title.toString().toLowerCase().startsWith("проповед")
                     || title.toString().toLowerCase().startsWith("молитва")) {
                     continue;
                 }
+                if (title.toString().contains("Алелуя")) {
+                    System.out.println();
+                }
                 var song = openSongObjectFactory.createSong();
                 var cue = row.get("Cue").toString();
                 var matcher = pattern.matcher(cue);
                 var songTitle = row.get("Title").toString();
-                var songAuthor = "God";
+                var songAuthor = "Unknown";
                 song.setCreatedIn("ShoutSingerEscape");
                 song.setModifiedIn("ShoutSingerEscape");
                 song.setModifiedDate(DatatypeFactory.newInstance()
@@ -70,10 +79,11 @@ public class ShoutSingerEscape {
                     var text = document.getText(0, document.getLength()).replace("&amp;apos;", "'");
                     var verse = openSongObjectFactory.createSongLyricsVerse();
                     verse.setLines(openSongObjectFactory.createSongLyricsVerseLines());
+                    if (song.getProperties().getTitles().getTitle().contains("Аз знам има два пътя")) {
+                        System.out.println();
+                    }
                     var textLines = text.strip().split("\\s+");
-                    Stream.of(textLines).forEach(line -> {
-                        verse.getLines().getContent().add(line.strip());
-                    });
+                    Stream.of(textLines).forEach(line -> verse.getLines().getContent().add(line.strip()));
                     verse.setName("v" + sequence++);
                     verses.put(verse.getName(), verse);
                 }
@@ -84,17 +94,21 @@ public class ShoutSingerEscape {
                 songs.add(song);
                 count++;
             }
-            var stopMilis = System.currentTimeMillis();
+            var stopMilliseconds = System.currentTimeMillis();
             System.out.println(
-                String.format("Parsing all %d songs took %d ms.", count, stopMilis - startMilis));
-            startMilis = System.currentTimeMillis();
+                String.format("\nParsing all %d songs took %d ms.", count, stopMilliseconds - startMilliseconds));
+            startMilliseconds = System.currentTimeMillis();
             var xmlUtil = new XmlUtil();
             songs.forEach(song -> {
                 try {
                     var xml = xmlUtil.convertToXml(song);
-                    var outputXml = new File(String.format("/Users/nasko/openlp_import/%s.xml",
-                        song.getProperties().getTitles().getTitle().replace("/", "")));
-                    var outputXmlWriter = new FileWriter(outputXml);
+                    var outputXml = new File(String.format("%s/%s.xml", outputFolder,
+                        song.getProperties().getTitles().getTitle()
+                            .replace("/", "")
+                            .replace("?", "")
+                    ));
+                    var outStream = new FileOutputStream(outputXml);
+                    var outputXmlWriter = new OutputStreamWriter(outStream, StandardCharsets.UTF_8);
                     outputXmlWriter.append(xml);
                     outputXmlWriter.flush();
                     outputXmlWriter.close();
@@ -102,10 +116,17 @@ public class ShoutSingerEscape {
                     e.printStackTrace();
                 }
             });
-            stopMilis = System.currentTimeMillis();
+            stopMilliseconds = System.currentTimeMillis();
             System.out.println(String.format("Exporting %d xml files to disk took %dms.", count,
-                stopMilis - startMilis));
+                stopMilliseconds - startMilliseconds));
         } catch (IOException | DatatypeConfigurationException e) {
+            e.printStackTrace();
+        }
+        var cp1251Char = (byte) 0xc2;
+        try {
+            var decodedCp1251Char = new String(new byte[]{cp1251Char}, "Cp1251");
+            System.out.println(decodedCp1251Char);
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

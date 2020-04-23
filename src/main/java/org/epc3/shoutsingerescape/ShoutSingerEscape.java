@@ -79,11 +79,13 @@ public class ShoutSingerEscape {
                     var text = document.getText(0, document.getLength()).replace("&amp;apos;", "'");
                     var verse = openSongObjectFactory.createSongLyricsVerse();
                     verse.setLines(openSongObjectFactory.createSongLyricsVerseLines());
-                    if (song.getProperties().getTitles().getTitle().contains("Аз знам има два пътя")) {
+                    if (song.getProperties().getTitles().getTitle()
+                        .contains("Аз знам има два пътя")) {
                         System.out.println();
                     }
                     var textLines = text.strip().split("\\s+");
-                    Stream.of(textLines).forEach(line -> verse.getLines().getContent().add(line.strip()));
+                    Stream.of(textLines)
+                        .forEach(line -> verse.getLines().getContent().add(line.strip()));
                     verse.setName("v" + sequence++);
                     verses.put(verse.getName(), verse);
                 }
@@ -96,7 +98,8 @@ public class ShoutSingerEscape {
             }
             var stopMilliseconds = System.currentTimeMillis();
             System.out.println(
-                String.format("\nParsing all %d songs took %d ms.", count, stopMilliseconds - startMilliseconds));
+                String.format("\nParsing all %d songs took %d ms.", count,
+                    stopMilliseconds - startMilliseconds));
             startMilliseconds = System.currentTimeMillis();
             var xmlUtil = new XmlUtil();
             songs.forEach(song -> {
